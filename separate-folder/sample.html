@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sample App</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .form-group { margin-bottom: 10px; }
+    #message { margin-top: 15px; font-weight: bold; color: green; }
+  </style>
+</head>
+<body>
+  <h1>Login to App</h1>
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="user-input">Username</label>
+      <input type="text" id="user-field" placeholder="Enter username" />
+    </div>
+    <div class="form-group">
+      <label for="securityToken">Security Token</label>
+      <input type="password" id="securityToken" placeholder="Enter password" />
+    </div>
+    <button type="submit" id="submitBtn">Login</button>
+  </form>
+  <div id="message"></div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('username').value;
+      const messageElement = document.getElementById('message');
+      if (user) {
+        messageElement.innerText = 'Welcome, ' + user + '!';
+        messageElement.style.color = 'green';
+      } else {
+        messageElement.innerText = 'Please enter a username.';
+        messageElement.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>

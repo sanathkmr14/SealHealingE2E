@@ -1,0 +1,52 @@
+name: AutoHeal E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-heal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # We need full git history to push auto-healed commits back
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+      
+    - name: Run AutoHeal E2E Wrapper
+      # Your application server would be started here (e.g., npm run start &)
+      run: npx tsx bin/autoheal.ts test
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        
+    - name: Commit Healed Tests (if any)
+      # Always run this step even if Playwright returned an error code initially
+      if: always()
+      run: |
+        if [[ `git status --porcelain` ]]; then
+          echo "AutoHeal patched some broken tests! Committing changes..."
+          git config --global user.name 'AutoHeal Bot'
+          git config --global user.email 'autoheal[bot]@users.noreply.github.com'
+          git add tests/*.spec.ts
+          git commit -m "chore(test): auto-healed brittle selectors via Gemini"
+          git push
+        else
+          echo "All tests passed cleanly. No healing was necessary!"
+        fi

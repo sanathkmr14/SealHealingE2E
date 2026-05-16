@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Catalog</title>
+    <style>body { font-family: sans-serif; padding: 20px; }</style>
+</head>
+<body>
+    <header>
+        <h1>Product Search</h1>
+    </header>
+    <main>
+        <div class="search-box">
+            <label for="search-query">Find Items</label>
+            <input type="text" id="search-query" name="q" placeholder="Type here..." data-testid="input-search">
+            <button id="find-product-btn" data-testid="button-find">Find</button>
+        </div>
+        <div id="results-count" style="margin-top: 20px; font-weight: bold;" data-testid="results-count">
+            Total items found: 0
+        </div>
+    </main>
+</body>
+</html>

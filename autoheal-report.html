@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="4">
+  <title>AutoHeal — Live Session Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080e1a;
+      --surface: #0f1a2e;
+      --card: #132035;
+      --border: #1e3050;
+      --text: #e2eaf5;
+      --muted: #5c7898;
+      --green: #22d65f;
+      --green-dim: #0f4a27;
+      --red: #f04060;
+      --red-dim: #4a0f1a;
+      --blue: #38aaff;
+      --blue-dim: #0a244a;
+      --gold: #fbbf24;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #0a1628 0%, #0f2044 50%, #0a1628 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .header-logo { font-size: 2rem; }
+    .header-title h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); }
+    .header-title p { color: var(--muted); font-size: 0.85rem; margin-top: 3px; }
+    .live-badge {
+      margin-left: auto;
+      background: rgba(34, 214, 95, 0.15);
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      text-align: center;
+    }
+    .stat-card .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-card .value { font-size: 2.2rem; font-weight: 700; margin-top: 6px; }
+    .stat-card.total .value { color: var(--blue); }
+    .stat-card.healed .value { color: var(--green); }
+    .stat-card.failed .value { color: var(--red); }
+    .stat-card.rate .value { color: var(--gold); }
+
+    /* ── Heal rate bar ── */
+    .progress-section { padding: 20px 40px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .progress-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--green), #00ffaa);
+      width: 100%;
+      transition: width 0.6s ease;
+    }
+
+    /* ── Main content ── */
+    .content { padding: 30px 40px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+
+    /* ── File accordion ── */
+    .file-accordion {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .file-accordion.healed { border-left: 4px solid var(--green); }
+    .file-accordion.failed { border-left: 4px solid var(--red); }
+
+    summary {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; cursor: pointer;
+      list-style: none; user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary:hover { background: rgba(56, 170, 255, 0.05); }
+    .file-icon { font-size: 1.2rem; }
+    .file-name { font-weight: 600; font-size: 1rem; flex: 1; }
+    .file-stats { display: flex; gap: 8px; }
+    .stat { font-size: 0.78rem; padding: 2px 10px; border-radius: 12px; font-weight: 600; }
+    .stat.healed { background: var(--green-dim); color: var(--green); }
+    .stat.failed { background: var(--red-dim); color: var(--red); }
+
+    .accordion-body { padding: 0 16px 16px; }
+
+    /* ── Test card ── */
+    .test-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .test-card.healed { border-left: 3px solid var(--green); }
+    .test-card.failed { border-left: 3px solid var(--red); }
+
+    .test-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .badge { font-size: 0.72rem; padding: 3px 9px; border-radius: 4px; font-weight: 700; }
+    .badge.healed { background: var(--green-dim); color: var(--green); }
+    .badge.failed { background: var(--red-dim); color: var(--red); }
+    .test-title { font-weight: 600; flex: 1; }
+    .test-meta { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+
+    .diff-row { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 8px; align-items: start; margin-bottom: 10px; }
+    .diff-arrow { text-align: center; color: var(--muted); font-size: 1.2rem; padding-top: 28px; }
+    .diff-box { background: #020810; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+    .diff-box label { font-size: 0.72rem; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .diff-box pre { font-family: 'Fira Code', monospace; font-size: 0.82rem; white-space: pre-wrap; word-break: break-all; }
+    .diff-box.old code { color: #f87171; text-decoration: line-through; }
+    .diff-box.new code { color: #86efac; }
+
+    .ai-insight {
+      background: rgba(56, 170, 255, 0.07);
+      border: 1px solid rgba(56, 170, 255, 0.2);
+      border-radius: 6px; padding: 10px 14px;
+      font-size: 0.85rem; color: #93c5fd; line-height: 1.5;
+    }
+    .insight-label { font-weight: 600; margin-right: 8px; color: var(--blue); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .diff-row { grid-template-columns: 1fr; }
+      .diff-arrow { display: none; }
+      .header, .content, .stats-bar, .progress-section { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-logo">🛠️</div>
+    <div class="header-title">
+      <h1>AutoHeal — Live Session Report</h1>
+      <p>Autonomous QA healing engine · auto-refreshes every 4s</p>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card total">
+      <div class="label">Total Attempts</div>
+      <div class="value">1</div>
+    </div>
+    <div class="stat-card healed">
+      <div class="label">Healed</div>
+      <div class="value">1</div>
+    </div>
+    <div class="stat-card failed">
+      <div class="label">Failed to Heal</div>
+      <div class="value">0</div>
+    </div>
+    <div class="stat-card rate">
+      <div class="label">Heal Rate</div>
+      <div class="value">100%</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>Heal Progress</span>
+      <span>1 / 1</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+
+  <div class="content">
+    <div class="section-title">Files (1)</div>
+      <details class="file-accordion healed">
+        <summary>
+          <span class="file-icon">✅</span>
+          <span class="file-name">product.spec.ts</span>
+          <span class="file-stats">
+            <span class="stat healed">1 healed</span>
+            
+          </span>
+        </summary>
+        <div class="accordion-body">
+      <div class="test-card healed">
+        <div class="test-header">
+          <span class="badge healed">🛡️ HEALED</span>
+          <span class="test-title">product.spec.ts</span>
+          <span class="test-meta">line 12 · 9:17:04 PM</span>
+        </div>
+        <div class="diff-row">
+          <div class="diff-box old">
+            <label>Before</label>
+            <pre><code>test(&#039;Product page interactions&#039;, async ({ page }) =&gt; {
+  await page.goto(localUrl);
+
+  // Let&#039;s see if the AI can fix this! The button text is actually &quot;Add to Shopping Bag&quot;
+  await page.getByRole(&#039;button&#039;, { name: &#039;Add to Cart&#039; }).click();
+
+  // Fixed: Price is &quot;$299.00&quot;
+  await expect(page.locator(&#039;#price-value&#039;)).toHaveText(&#039;$299.00&#039;);
+
+  await expect(page.locator(&#039;#status-message&#039;)).toBeVisible();
+})</code></pre>
+          </div>
+          <div class="diff-arrow">→</div>
+          <div class="diff-box new">
+            <label>After</label>
+            <pre><code>test(&#039;Product page interactions&#039;, async ({ page }) =&gt; {
+  await page.goto(localUrl);
+
+  // Let&#039;s see if the AI can fix this! The button text is actually &quot;Add to Shopping Bag&quot;
+  await page.getByRole(&#039;button&#039;, { name: &#039;Add to Shopping Bag&#039; }).click();
+
+  // Fixed: Price is &quot;$299.00&quot;
+  await expect(page.locator(&#039;#price-value&#039;)).toHaveText(&#039;$299.00&#039;);
+
+  await expect(page.locator(&#039;#status-message&#039;)).toBeVisible();
+});</code></pre>
+          </div>
+        </div>
+        <div class="ai-insight">
+          <span class="insight-label">🤖 AI Insight</span>
+          The test uses the wrong button text &quot;Add to Cart&quot; when the actual button displays &quot;Add to Shopping Bag&quot;. I fixed it by updating the locator to use the correct button name &#039;Add to Shopping Bag&#039; as specified in the VALIDATED LOCATOR MAP.
+        </div>
+      </div>
+    </div>
+      </details>
+    
+  </div>
+</body>
+</html>

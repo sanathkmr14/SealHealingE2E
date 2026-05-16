@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Page</title>
+</head>
+<body>
+    <h1>Premium Wireless Headphones</h1>
+    <p class="description">Noise-cancelling over-ear headphones with 40h battery life.</p>
+    <div class="price-container">
+        Price: <span id="price-value">$299.00</span>
+    </div>
+    <button id="add-to-cart-btn">Add to Shopping Bag</button>
+    <div id="status-message" style="display:none;">Added to cart!</div>
+
+    <script>
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            document.getElementById('status-message').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

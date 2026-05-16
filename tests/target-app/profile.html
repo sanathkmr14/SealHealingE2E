@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User Profile Settings</h1>
+    <div class="profile-card">
+        <img src="avatar.png" alt="Avatar" style="width: 100px; height: 100px; background: #eee;">
+        <form>
+            <label for="bio-text">About Me</label><br>
+            <textarea id="bio-text" name="bio" placeholder="Enter your biography here..."
+                data-testid="textarea-bio"></textarea>
+            <br><br>
+            <label for="location-field">Current City</label>
+            <input type="text" id="location-field" value="New York, USA" data-testid="input-location">
+            <br><br>
+            <button type="submit" id="save-profile-button" data-testid="button-save-profile">Save Changes</button>
+        </form>
+    </div>
+</body>
+<button type="submit" id="save-profile-button" data-testid="button-save-profile">Save Changes</button>
+</html>

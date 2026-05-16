@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Feedback</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="range"] { width: 100%; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .rating-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; }
+        button { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Share Your Feedback</h1>
+        <p>We'd love to hear about your experience with our platform.</p>
+        
+        <form id="feedback-form">
+            <div class="form-group">
+                <label for="experience">Overall Experience</label>
+                <input type="range" id="experience" name="experience" min="1" max="10" step="1" value="5" data-testid="range-experience">
+                <div class="rating-labels">
+                    <span>Poor</span>
+                    <span>Neutral</span>
+                    <span>Excellent</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="comments">What could we improve?</label>
+                <textarea id="comments" name="comments" rows="5" placeholder="Tell us more..." data-testid="textarea-comments"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Would you recommend us?</label>
+                <input type="radio" id="yes" name="recommend" value="yes" checked data-testid="radio-recommend-yes"> <label for="yes" style="display:inline; font-weight:normal;">Yes</label>
+                <input type="radio" id="no" name="recommend" value="no" data-testid="radio-recommend-no"> <label for="no" style="display:inline; font-weight:normal;">No</label>
+            </div>
+
+            <button type="submit" id="submit-feedback" data-testid="button-submit-feedback">Submit Review</button>
+        </form>
+        <div id="thank-you" style="display:none; text-align:center; padding: 40px;">
+            <h2>🎉 Thank you for your feedback!</h2>
+            <p>Your response helps us grow.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('feedback-form').style.display = 'none';
+            document.getElementById('thank-you').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

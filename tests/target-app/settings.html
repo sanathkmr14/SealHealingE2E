@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Settings</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="settings-panel">
+        <h1>Dashboard Settings</h1>
+        <section aria-label="Dashboard Settings">
+            <h3>General Preferences</h3>
+            <label>
+                <input type="checkbox" id="email-toggle" aria-label="Send me Emails" checked>
+                Send me Emails
+            </label>
+            <br><br>
+            <label for="theme-selector">Theme Choice</label>
+            <select id="appearance-theme">
+                <option value="light">Light Mode</option>
+                <option value="dark">Dark Mode</option>
+            </select>
+        </section>
+        <hr>
+        <button id="save-preferences-btn">Update</button>
+    </div>
+</body>
+
+</html>
