@@ -155,11 +155,5 @@ AutoHeal uses an `autoheal.config.json` file in your project root to remember yo
 - [x] Strict Mode Violation detection & Smart Healing
 - [x] Integration with CI/CD (GitHub Actions)
 
-**⏳ Upcoming**
-- [ ] Support for Mobile Viewports & Emulation
-- [ ] Parallel execution for faster batch healing
-- [ ] Custom prompt templates via config
-- [ ] Support for other frameworks (Cypress, Selenium)
-
 ## 📄 License
 This project is licensed under the MIT License.
