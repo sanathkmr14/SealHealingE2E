@@ -1,0 +1,14 @@
+.env
+tests/
+scratch/
+separate-folder/
+.agent/
+.github/
+.playwright-browsers/
+.tmp/
+autoheal-attempts.jsonl
+autoheal-attempts.json
+autoheal-report.html
+temp_report_*.json
+src/
+tsconfig.json

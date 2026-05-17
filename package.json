@@ -2,9 +2,9 @@
   "name": "selfhealinge2e",
   "version": "1.0.0",
   "description": "Writing and maintaining end-to-end (E2E) tests in tools like Cypress or Playwright is developers' least favorite task. When the UI changes, tests break, blocking deployment pipelines.",
-  "main": "index.js",
+  "main": "dist/src/runner.js",
   "bin": {
-    "autoheal": "./dist/bin/autoheal.js"
+    "autoheal": "dist/bin/autoheal.js"
   },
   "scripts": {
     "build": "tsc",
@@ -12,9 +12,24 @@
     "test": "node dist/bin/autoheal.js test",
     "view": "node dist/bin/autoheal.js view"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "playwright",
+    "e2e",
+    "testing",
+    "ai",
+    "self-healing",
+    "automation",
+    "qa",
+    "llm"
+  ],
+  "author": "Harish",
   "license": "ISC",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "type": "module",
   "devDependencies": {
     "@types/node": "^25.5.0",

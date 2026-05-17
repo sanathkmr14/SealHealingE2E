@@ -253,7 +253,8 @@ ${importCode}
   // ── Post-generation syntax check (--list just enumerates tests, no browser) ──
   try {
     const { spawnSync } = await import('child_process');
-    spawnSync('npx', ['playwright', 'test', testFilePath, '--list'], { stdio: 'pipe' });
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    spawnSync(npxCmd, ['playwright', 'test', testFilePath, '--list'], { stdio: 'pipe' });
     logger.success(`Syntax check passed — test file is valid.`);
   } catch (e: any) {
     const output = e.stdout?.toString() || e.stderr?.toString() || '';

@@ -36,7 +36,8 @@ export function findSourceFileForElement(
     const files = getAllFiles(targetDir, excludePatterns);
 
     // 2. Sort files by similarity to the test file name (if possible)
-    const testFileName = path.basename(errorMsg.split(':')[0] || '').replace('.spec', '').split('.')[0];
+    const fileMatch = errorMsg.match(/([a-zA-Z0-9_\-\/\.\\]+\.[jt]sx?)/i);
+    const testFileName = fileMatch ? path.basename(fileMatch[1]!).replace('.spec', '').split('.')[0]! : '';
     const sortedFiles = files.sort((a, b) => {
         const aBase = path.basename(a).toLowerCase();
         const bBase = path.basename(b).toLowerCase();
@@ -89,10 +90,13 @@ export function getAllFiles(dir: string, excludes: string[]): string[] {
             // check if this path matches any exclusion pattern
             if (excludes.some(pattern => {
                 const normalizedPath = filePath.replace(/\\/g, '/');
-                const cleanPattern = pattern.replace(/\*\*\//g, '').replace(/^\/|\/$/g, '');
-                // Check if the pattern matches a directory segment exactly
-                const segments = normalizedPath.split('/');
-                return segments.includes(cleanPattern);
+                // Convert simple globs to regex (e.g. *.spec.ts -> .*\.spec\.ts$)
+                const regexStr = pattern
+                    .replace(/\./g, '\\.')
+                    .replace(/\*\*/g, '.*')
+                    .replace(/\*/g, '[^/]*');
+                const regex = new RegExp(regexStr + '($|/)');
+                return regex.test(normalizedPath);
             })) return;
 
             if (stat && stat.isDirectory()) {

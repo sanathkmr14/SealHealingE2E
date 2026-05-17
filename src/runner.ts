@@ -321,25 +321,25 @@ async function healWithRetries(
      * 2. ALWAYS use expect(locator).toHaveText() or similar to synchronize.
      * 3. Prefer stable ID locators over text-based ones.
      */
-    const patched = await healTest(
+    const healResult = await healTest(
       errorFile, errorLine, errorMsg, interactive, previousFix, verificationError, originalContent
     );
 
     clearInterval(ticker);
     aiSpinner.stop();
 
-    if (!patched) {
+    if (healResult === false || !healResult || !healResult.success) {
       logger.error(`  Patch generation failed on attempt ${attempt}.`);
-      verificationError = 'AI could not generate a valid patch.';
+      verificationError = 'AI could not generate a valid patch or user cancelled.';
       continue;
     }
 
+    const { targetFile, originalTargetContent } = healResult;
+
     // Capture the patched test block BEFORE verifying — this is what we show
     // the AI as "previousFix" (your last replacement) on the next retry attempt.
-    // We extract only the affected test block, not the whole file, so the AI's
-    // retry context is focused and matches the replacement-only prompt format.
-    const patchedContent = fs.readFileSync(errorFile, 'utf8');
-    const patchedTestBlock = extractTestBlock(patchedContent, errorLine);
+    const patchedContent = fs.readFileSync(targetFile, 'utf8');
+    const patchedTestBlock = targetFile.endsWith('.html') ? patchedContent : extractTestBlock(patchedContent, errorLine);
 
     // Verify: run only the specific test that was just fixed
     const verifySpinner = ora(`  🔍 Verifying fix (attempt ${attempt})...`).start();
@@ -357,8 +357,8 @@ async function healWithRetries(
     // Store just the patched test block so the AI sees what its replacement was
     previousFix = patchedTestBlock;
     // Revert the file so the next attempt starts clean from the original
-    fs.writeFileSync(errorFile, originalContent, 'utf8');
-    updateWatcherCache(errorFile, originalContent);
+    fs.writeFileSync(targetFile, originalTargetContent, 'utf8');
+    updateWatcherCache(targetFile, originalTargetContent);
 
     const verifyErrors = extractTestErrors(verifyReport);
     verificationError =
@@ -388,6 +388,7 @@ function extractTestBlock(content: string, errorLine: number): string {
       const testBlock = descendant.getFirstAncestor(node => {
         if (Node.isCallExpression(node)) {
           const exp = node.getExpression().getText();
+          if (exp.includes('test.step')) return false; // Ignore test.step to get full test scope
           if (exp.includes('test') || exp.includes('describe') || exp.includes('it')) return true;
         }
         if (Node.isMethodDeclaration(node) || Node.isFunctionDeclaration(node)) return true;
@@ -460,7 +461,8 @@ function spawnPlaywright(args: string[]): Promise<{ exitCode: number; jsonReport
       PLAYWRIGHT_JSON_OUTPUT_NAME: tempReportPath
     };
 
-    const pwPath = path.resolve(projectRoot, 'node_modules', '.bin', 'playwright');
+    const pwBin = process.platform === 'win32' ? 'playwright.cmd' : 'playwright';
+    const pwPath = path.resolve(projectRoot, 'node_modules', '.bin', pwBin);
 
     // Filter args to remove conflicting reporters and traces
     const cleanArgs = args.filter(a => !a.startsWith('--reporter') && !a.includes('trace'));
@@ -479,7 +481,7 @@ function spawnPlaywright(args: string[]): Promise<{ exitCode: number; jsonReport
     // Timeout after 5 minutes to prevent hanging (Bug #2)
     const timeoutId = setTimeout(() => {
       if (child.pid) {
-        try { process.kill(-child.pid, 'SIGTERM'); } catch (e) {}
+        try { process.kill(-child.pid, 'SIGTERM'); } catch (e) { child.kill('SIGTERM'); }
       } else {
         child.kill('SIGTERM');
       }

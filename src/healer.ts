@@ -183,6 +183,7 @@ function extractFailingTestBlock(content: string, errorLine: number): string {
       const testBlock = descendant.getFirstAncestor(node => {
         if (Node.isCallExpression(node)) {
           const exp = node.getExpression().getText();
+          if (exp.includes('test.step')) return false; // Ignore test.step to get full test scope
           if (exp.includes('test') || exp.includes('describe') || exp.includes('it')) return true;
         }
         if (Node.isMethodDeclaration(node) || Node.isFunctionDeclaration(node)) {
@@ -446,7 +447,7 @@ export async function healTest(
   previousFix?: string,
   verificationError?: string,
   originalContent?: string  // stable baseline — always diff against this
-): Promise<boolean> {
+): Promise<any> {
   const config = loadConfig();
   const testContent = fs.readFileSync(file, 'utf8');
 
@@ -690,14 +691,20 @@ export async function healTest(
       }
     }
 
+    const originalTargetContent = fs.existsSync(targetFile) ? fs.readFileSync(targetFile, 'utf8') : '';
     const success = patchFile(targetFile, originalString, replacementString, errorLine);
     aiStatus = success ? 'ai_healed' : 'patch_failed';
     logAttempt(targetFile, errorLine, provider, model, prompt, suggestion, aiStatus, explanation, originalString, replacementString);
-    return success;
+    
+    return {
+      success,
+      targetFile,
+      originalTargetContent
+    };
   } catch (e: any) {
     logger.error(`Healer error: ${e.message}`);
     logAttempt(file, errorLine, provider, model, prompt, '', 'ai_parse_failed', explanation);
-    return false;
+    return { success: false };
   }
 }
 

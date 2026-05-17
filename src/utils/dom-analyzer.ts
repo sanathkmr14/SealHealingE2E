@@ -36,8 +36,12 @@ export interface DomAnalysis {
 }
 
 function attr(attrs: string, name: string): string {
-  const re = new RegExp(`(?:^|\\s)${name}=["']([^"']*)["']`, 'i');
-  return attrs.match(re)?.[1]?.trim() ?? '';
+  // Matches name="val", name='val', name=val, or just name (boolean attribute)
+  const re = new RegExp(`(?:^|\\s)${name}(?:=(["'])?([^"'>\\s]*)\\1?)?(?:\\s|>|$)`, 'i');
+  const match = attrs.match(re);
+  if (!match) return '';
+  // If it's a boolean attribute like 'hidden' without '=', match[2] is undefined
+  return (match[2] !== undefined ? match[2] : 'true').trim();
 }
 
 function isElementHidden(attrs: string): boolean {
