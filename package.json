@@ -1,5 +1,5 @@
 {
-  "name": "selfhealinge2e",
+  "name": "@sanathkumar/selfhealinge2e",
   "version": "1.0.0",
   "description": "Writing and maintaining end-to-end (E2E) tests in tools like Cypress or Playwright is developers' least favorite task. When the UI changes, tests break, blocking deployment pipelines.",
   "main": "dist/src/runner.js",
@@ -23,7 +23,7 @@
     "llm"
   ],
   "author": "Harish",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "dist",
     "README.md",

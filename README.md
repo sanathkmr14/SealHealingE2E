@@ -1,6 +1,6 @@
 # 🛡️ AutoHeal: AI-Powered Self-Healing E2E Testing
 
-![NPM Version](https://img.shields.io/npm/v/selfhealinge2e)
+![NPM Version](https://img.shields.io/npm/v/@sanathkumar/selfhealinge2e)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 **AutoHeal** is an autonomous end-to-end test modifier and generator that prevents flaky Playwright tests from breaking your deployment pipelines. 
@@ -24,10 +24,10 @@ Writing and maintaining E2E tests is a massive pain. When your UI changes—a bu
 Since AutoHeal is a CLI tool, it is highly recommended to install it globally so you can use the `autoheal` command anywhere:
 
 ```bash
-npm install -g selfhealinge2e
+npm install -g @sanathkumar/selfhealinge2e
 ```
 
-*(Alternatively, you can run it locally in your project without installing globally using `npx selfhealinge2e`)*
+*(Alternatively, you can run it locally in your project without installing globally using `npx @sanathkumar/selfhealinge2e`)*
 
 ---
 
@@ -46,51 +46,81 @@ autoheal init
 
 ## 📖 Usage Guide
 
-AutoHeal provides a full suite of commands to make E2E testing effortless.
+AutoHeal provides a powerful set of commands to make E2E testing effortless. You can pass any standard Playwright arguments to these commands (like specific file names or `--headed`).
 
-### 1. Run & Heal Tests
-Run your entire test suite. If any test fails due to a broken locator or mismatched text, AutoHeal will automatically pause, analyze the DOM, rewrite your test script, and verify the fix.
+### 🛠️ 1. Test & Auto-Heal (`autoheal test`)
+This is the core command. It runs your Playwright test suite. If any test fails due to a UI change (e.g., a missing button, changed text, or broken selector), AutoHeal catches the error, analyzes your application's DOM, and surgically rewrites the broken line of code in your test file so it passes.
 
+**Basic Usage (Run all tests):**
 ```bash
 autoheal test
 ```
-*Add the `--interactive` (or `-i`) flag if you want to manually approve every AI code change before it is saved.*
 
-### 2. Live Watcher (TDD Mode)
-Continuously watch your project files. Whenever you save an HTML or Source file, AutoHeal will instantly find the matching test, run it, and heal it if you broke the UI.
-
+**Run a specific test file:**
 ```bash
-autoheal watch --dir tests/target-app
+autoheal test tests/login.spec.ts
 ```
 
-### 3. Generate a New Test
-Give AutoHeal an HTML file or a live URL, and it will read the DOM and write a complete, robust Playwright test file from scratch.
-
+**Interactive Mode (Recommended for safety):**
+If you want to review and approve the AI's code changes before they are saved to your files, use the `-i` flag.
 ```bash
-# Generate from a local file
-autoheal generate tests/target-app/login.html
+autoheal test -i
+```
 
-# Generate from a live URL
+### ⚡ 2. Real-Time TDD Watcher (`autoheal watch`)
+Watch your project files continuously. Whenever you save an HTML or Source file, AutoHeal instantly finds the matching test, runs it, and heals it if your code changes broke the UI.
+
+**Basic Usage:**
+```bash
+autoheal watch
+```
+
+**Watch a specific directory:**
+```bash
+autoheal watch --dir src/components
+```
+
+### 🧠 3. Generate New Tests (`autoheal generate`)
+Don't write tests by hand! Give AutoHeal an HTML file or a live URL, and it will analyze the page and write a complete, robust Playwright test file from scratch.
+
+**Generate from a local file:**
+```bash
+autoheal generate tests/target-app/login.html
+```
+
+**Generate from a live URL:**
+```bash
 autoheal generate https://example.com/login
 ```
 
-### 4. Batch Generate Tests
-Point AutoHeal at a folder, and it will recursively find all HTML files and generate Playwright tests for every single one.
+### 🏗️ 4. Batch Generate Tests (`autoheal generate-all`)
+Point AutoHeal at a folder, and it will recursively find all HTML files and generate Playwright tests for every single one automatically.
 
+**Basic Usage:**
 ```bash
-autoheal generate-all --dir tests/target-app
+autoheal generate-all --dir public/pages
 ```
 
-### 5. Visual Debugging
-Want to actually *see* what the browser is doing? Run the tests in headed mode with accelerated slow-motion so you can watch the AI interact with your app.
+### 🗺️ 5. Multi-Page User Journeys (`autoheal flow`)
+Generate a single, end-to-end "Flow" test that navigates through multiple pages in order (e.g., Login -> Dashboard -> Settings).
 
+**Basic Usage:**
 ```bash
-autoheal view
+autoheal flow tests/target-app/login.html tests/target-app/dashboard.html
 ```
 
-### 6. Playwright UI Mode
-Quickly open Playwright's built-in time-travel UI for deep debugging.
+### 👁️ 6. Visual Debugging (`autoheal view`)
+Want to actually *see* what the browser is doing? This runs your tests in a visible Chrome window with "accelerated slow-motion" so you can watch the AI interact with your app and understand why a test is failing.
 
+**Basic Usage:**
+```bash
+autoheal view tests/checkout.spec.ts
+```
+
+### 🔬 7. Playwright UI Mode (`autoheal ui`)
+Quickly open Playwright's built-in time-travel UI for deep debugging and tracing.
+
+**Basic Usage:**
 ```bash
 autoheal ui
 ```
@@ -118,11 +148,18 @@ AutoHeal uses an `autoheal.config.json` file in your project root to remember yo
 ---
 
 ## 🤝 Roadmap
+
+**✅ Completed**
 - [x] Multi-AI Provider support (Gemini, OpenRouter, OpenAI, Anthropic)
-- [x] Recursive file support
-- [x] Strict Mode Violation detection
-- [ ] Integration with CI/CD (GitHub Actions)
-- [ ] Support for Mobile Viewports
+- [x] Recursive file support & Elastic Test Discovery
+- [x] Strict Mode Violation detection & Smart Healing
+- [x] Integration with CI/CD (GitHub Actions)
+
+**⏳ Upcoming**
+- [ ] Support for Mobile Viewports & Emulation
+- [ ] Parallel execution for faster batch healing
+- [ ] Custom prompt templates via config
+- [ ] Support for other frameworks (Cypress, Selenium)
 
 ## 📄 License
 This project is licensed under the MIT License.
