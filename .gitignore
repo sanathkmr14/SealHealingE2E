@@ -8,3 +8,12 @@ playwright/.cache/
 .DS_Store
 dist/
 *.log
+.tmp/
+scratch/
+separate-folder/
+temp_report.json
+report-debug.json
+playwright-report.json
+autoheal-attempts.json*
+BUG_REPORT.md
+FIXES.md
