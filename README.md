@@ -67,17 +67,17 @@ If you want to review and approve the AI's code changes before they are saved to
 autoheal test -i
 ```
 
-### ⚡ 2. Real-Time TDD Watcher (`autoheal watch`)
+### ⚡ 2. Live Watcher (TDD Mode)
 Watch your project files continuously. Whenever you save an HTML or Source file, AutoHeal instantly finds the matching test, runs it, and heals it if your code changes broke the UI.
 
-**Basic Usage:**
+**Watch a specific folder (recommended):**
 ```bash
-autoheal watch
+autoheal watch --dir tests/target-app
 ```
 
-**Watch a specific directory:**
+**Watch the entire project workspace:**
 ```bash
-autoheal watch --dir src/components
+autoheal watch --dir .
 ```
 
 ### 🧠 3. Generate New Tests (`autoheal generate`)
