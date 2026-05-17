@@ -205,7 +205,7 @@
       <details class="file-accordion healed">
         <summary>
           <span class="file-icon">✅</span>
-          <span class="file-name">product.spec.ts</span>
+          <span class="file-name">checkout.html</span>
           <span class="file-stats">
             <span class="stat healed">1 healed</span>
             
@@ -215,43 +215,25 @@
       <div class="test-card healed">
         <div class="test-header">
           <span class="badge healed">🛡️ HEALED</span>
-          <span class="test-title">product.spec.ts</span>
-          <span class="test-meta">line 12 · 9:17:04 PM</span>
+          <span class="test-title">checkout.html</span>
+          <span class="test-meta">line 53 · 12:35:38 PM</span>
         </div>
         <div class="diff-row">
           <div class="diff-box old">
             <label>Before</label>
-            <pre><code>test(&#039;Product page interactions&#039;, async ({ page }) =&gt; {
-  await page.goto(localUrl);
-
-  // Let&#039;s see if the AI can fix this! The button text is actually &quot;Add to Shopping Bag&quot;
-  await page.getByRole(&#039;button&#039;, { name: &#039;Add to Cart&#039; }).click();
-
-  // Fixed: Price is &quot;$299.00&quot;
-  await expect(page.locator(&#039;#price-value&#039;)).toHaveText(&#039;$299.00&#039;);
-
-  await expect(page.locator(&#039;#status-message&#039;)).toBeVisible();
-})</code></pre>
+            <pre><code>        &lt;!-- The test will expect id=&quot;pay-button&quot; --&gt;
+        &lt;button id=&quot;pay-button&quot;&gt;Pay&lt;/button&gt;</code></pre>
           </div>
           <div class="diff-arrow">→</div>
           <div class="diff-box new">
             <label>After</label>
-            <pre><code>test(&#039;Product page interactions&#039;, async ({ page }) =&gt; {
-  await page.goto(localUrl);
-
-  // Let&#039;s see if the AI can fix this! The button text is actually &quot;Add to Shopping Bag&quot;
-  await page.getByRole(&#039;button&#039;, { name: &#039;Add to Shopping Bag&#039; }).click();
-
-  // Fixed: Price is &quot;$299.00&quot;
-  await expect(page.locator(&#039;#price-value&#039;)).toHaveText(&#039;$299.00&#039;);
-
-  await expect(page.locator(&#039;#status-message&#039;)).toBeVisible();
-});</code></pre>
+            <pre><code>        &lt;!-- The test will expect id=&quot;pay-button&quot; --&gt;
+        &lt;button id=&quot;pay-button&quot; type=&quot;submit&quot;&gt;Pay&lt;/button&gt;</code></pre>
           </div>
         </div>
         <div class="ai-insight">
           <span class="insight-label">🤖 AI Insight</span>
-          The test uses the wrong button text &quot;Add to Cart&quot; when the actual button displays &quot;Add to Shopping Bag&quot;. I fixed it by updating the locator to use the correct button name &#039;Add to Shopping Bag&#039; as specified in the VALIDATED LOCATOR MAP.
+          The button element in the HTML source lacks the `type=&quot;submit&quot;` attribute that the test is asserting. The test expects a submit button but the HTML only defines a plain button without any type attribute. I fixed this by adding `type=&quot;submit&quot;` to the button element in the HTML so it properly represents a submit button and matches the test expectation.
         </div>
       </div>
     </div>
