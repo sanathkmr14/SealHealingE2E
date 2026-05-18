@@ -223,11 +223,14 @@ STRICT RULES:
 7. NEVER assert getByText() for text not in visible-text-samples.
 8. Static file:// pages with no <script> tags are FULLY STATIC — do NOT assert dynamic state changes.
 9. Write MULTIPLE test() blocks in a test.describe() — one per concern (load, form fill, buttons, etc.). MUST use test.describe not describe.
-10. Start with:
+10. PLAYWRIGHT STRICT MODE CONSTRAINTS & DUPLICATE ELIMINATION: Playwright requires locators to resolve to EXACTLY ONE unique element. Scan the provided DOM/RAW HTML to ensure any text or elements you target are strictly unique.
+    - If a text node, heading, or element label appears multiple times in the DOM (e.g., 'ScoopDreams' in the header/banner and also in the footer), you MUST scope the locator to its parent container (e.g., \`page.getByRole('banner').getByText('ScoopDreams')\` or \`page.locator('header').getByText('ScoopDreams')\`) or append \`.first()\`.
+    - If targeting a word nested inside elements like spans/formatting tags within a heading (e.g., \`Taste the <span>Magic</span> in Every Scoop\`), using \`page.getByText('Magic')\` will match both the span and heading, causing a strict mode failure. You MUST target the specific tag uniquely or use \`page.getByRole('heading', { name: /Magic/ })\`.
+11. Start with:
 ${importCode}
-11. Navigate inside each test using:
+12. Navigate inside each test using:
    ${navigationCode}
-12. Output ONLY raw TypeScript. No markdown fences, no explanations, no prose.
+13. Output ONLY raw TypeScript. No markdown fences, no explanations, no prose.
 `;
 
   let generatedCode = await askAI(
@@ -301,14 +304,17 @@ ${pagesBlock}
 MANDATORY RULES:
 1. ALL locator strings MUST come verbatim from the VALIDATED LOCATOR MAP sections above.
 2. For any element marked ⚠️ DISCONNECTED LABEL → use the given locator() expression.
-3. ESM boilerplate at top:
+3. PLAYWRIGHT STRICT MODE CONSTRAINTS & DUPLICATE ELIMINATION: Playwright requires locators to resolve to EXACTLY ONE unique element. Scan the provided DOM/RAW HTML to ensure any text or elements you target are strictly unique.
+   - If a text node, heading, or element label appears multiple times (e.g., in a header/banner and also in a footer), scope the locator to its parent container (e.g., \`page.getByRole('banner').getByText('ScoopDreams')\` or \`page.locator('header').getByText('ScoopDreams')\`) or append \`.first()\`.
+   - If targeting a word nested inside formatted child elements (e.g. \`Taste the <span>Magic</span>\`), avoid plain \`getByText\` which matches both parent and child; target it uniquely using \`page.getByRole('heading', { name: /Magic/ })\`.
+4. ESM boilerplate at top:
    import { test, expect } from '@playwright/test';
    import { fileURLToPath } from 'url';
    import * as path from 'path';
    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-4. Use file:// protocol for local files.
-5. One test block: test('should complete the ${flowName} journey', async ({ page }) => { ... });
-6. Output ONLY raw TypeScript.
+5. Use file:// protocol for local files.
+6. One test block: test('should complete the ${flowName} journey', async ({ page }) => { ... });
+7. Output ONLY raw TypeScript.
 `;
 
   const config = loadConfig();

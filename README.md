@@ -21,13 +21,22 @@ Writing and maintaining E2E tests is a massive pain. When your UI changes—a bu
 
 ## 🛠️ Installation
 
-Since AutoHeal is a CLI tool, it is highly recommended to install it globally so you can use the `autoheal` command anywhere:
+Since AutoHeal is a CLI tool, you can install it globally so you can use the `autoheal` command anywhere:
 
 ```bash
 npm install -g @sanathkumar/selfhealinge2e
 ```
 
-*(Alternatively, you can run it locally in your project without installing globally using `npx @sanathkumar/selfhealinge2e`)*
+### 📦 Playwright Project Setup
+To run tests in your project, make sure Playwright and the browser binaries are installed in your target project:
+
+```bash
+# 1. Install Playwright test runner in your target project
+npm install --save-dev @playwright/test
+
+# 2. Install the Chromium browser binary
+npx playwright install chromium
+```
 
 ---
 
@@ -68,11 +77,11 @@ autoheal test -i
 ```
 
 ### ⚡ 2. Live Watcher (TDD Mode)
-Watch your project files continuously. Whenever you save an HTML or Source file, AutoHeal instantly finds the matching test, runs it, and heals it if your code changes broke the UI.
+Watch your project files continuously. Whenever you save a React (`.jsx`/`.tsx`), Vue (`.vue`), Svelte (`.svelte`), or HTML source file, AutoHeal instantly finds the matching test, runs it, and heals it if your code changes broke the UI.
 
 **Watch a specific folder (recommended):**
 ```bash
-autoheal watch --dir tests/target-app
+autoheal watch --dir src
 ```
 
 **Watch the entire project workspace:**
@@ -80,12 +89,22 @@ autoheal watch --dir tests/target-app
 autoheal watch --dir .
 ```
 
-### 🧠 3. Generate New Tests (`autoheal generate`)
-Don't write tests by hand! Give AutoHeal an HTML file or a live URL, and it will analyze the page and write a complete, robust Playwright test file from scratch.
-
-**Generate from a local file:**
+**Watch in headed visual mode (to see browsers open and test in real-time):**
 ```bash
-autoheal generate tests/target-app/login.html
+VISUAL=true autoheal watch --dir src
+```
+
+### 🧠 3. Generate New Tests (`autoheal generate`)
+Don't write tests by hand! Give AutoHeal a React component, Svelte file, Vue page, static HTML file, or a live URL, and it will analyze the UI elements and write a complete, robust Playwright test file from scratch.
+
+**Generate from a React component, Vue, or Svelte file:**
+```bash
+autoheal generate src/components/LoginForm.tsx
+```
+
+**Generate from a local HTML file:**
+```bash
+autoheal generate public/pages/login.html
 ```
 
 **Generate from a live URL:**
@@ -94,19 +113,19 @@ autoheal generate https://example.com/login
 ```
 
 ### 🏗️ 4. Batch Generate Tests (`autoheal generate-all`)
-Point AutoHeal at a folder, and it will recursively find all HTML files and generate Playwright tests for every single one automatically.
+Point AutoHeal at a folder, and it will recursively find all source files/components (HTML, JSX, TSX, Vue, Svelte) and generate Playwright tests for every single one automatically.
 
 **Basic Usage:**
 ```bash
-autoheal generate-all --dir public/pages
+autoheal generate-all --dir src/pages
 ```
 
 ### 🗺️ 5. Multi-Page User Journeys (`autoheal flow`)
-Generate a single, end-to-end "Flow" test that navigates through multiple pages in order (e.g., Login -> Dashboard -> Settings).
+Generate a single, end-to-end "Flow" test that navigates through multiple components or pages in order (e.g., Login -> Dashboard -> Settings).
 
 **Basic Usage:**
 ```bash
-autoheal flow tests/target-app/login.html tests/target-app/dashboard.html
+autoheal flow src/pages/login.tsx src/pages/dashboard.tsx
 ```
 
 ### 👁️ 6. Visual Debugging (`autoheal view`)

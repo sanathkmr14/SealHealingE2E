@@ -275,9 +275,11 @@ The locator cannot find the element. Read the VALIDATED LOCATOR MAP carefully.
 
     STRICT_MODE_VIOLATION: `
 🔍 ERROR CLASS: STRICT_MODE_VIOLATION
-The locator matches multiple elements on the page. You must make it more specific.
+The locator matches multiple elements on the page. You must make it more specific and resolve duplicates.
 - Use the VALIDATED LOCATOR MAP to find more unique attributes (e.g., placeholder, name, ID).
 - If the elements are truly identical, use \`.first()\`, \`.last()\`, or \`.nth(i)\`.
+- If a text node, heading, or element label appears multiple times (e.g., in a header/banner and also in a footer like 'ScoopDreams'), automatically scope the locator to its parent container (e.g., \`page.getByRole('banner').getByText('ScoopDreams')\` or \`page.locator('header').getByText('ScoopDreams')\`) or append \`.first()\`.
+- If targeting a word nested inside formatted child elements (like \`Taste the <span>Magic</span>\`), Playwright's \`getByText('Magic')\` will match both the span and parent heading. Target it uniquely using a role locator like \`page.getByRole('heading', { name: /Magic/ })\` instead of a plain \`getByText\`.
 - If one is visible and others are hidden, use \`locator('...').filter({ visible: true })\`.`,
 
     ASSERTION_MISMATCH: `
@@ -334,7 +336,9 @@ STRICT REPAIR RULES:
 2. ALWAYS use Playwright's auto-waiting assertions like expect(locator).toHaveText().
 3. PREFER stable ID locators (e.g., #submitBtn) over text-based locators for elements that change state.
 4. If an element changes text (e.g., from "Submit" to "Sending"), do NOT use the new text in the locator. Target the element by ID and assert on the text.
-5. Preserve the original test structure and indentation perfectly.`;
+5. PLAYWRIGHT STRICT MODE & DUPLICATE LOCATOR ELIMINATION: Every selector must resolve to a single unique element. If a text node or label appears multiple times (e.g., in a header/banner and also in a footer), scope the locator to its parent container (e.g., page.getByRole('banner').getByText('ScoopDreams')) or use .first()/.last().
+6. NESTED TEXT TARGETING: If a word is nested inside formatting tags (like <span> or <strong>) inside a parent element (like <h1>), page.getByText() will match both child and parent. Target it uniquely using a role locator (e.g., page.getByRole('heading', { name: /Magic/ })).
+7. Preserve the original test structure and indentation perfectly.`;
 
   return `${systemPrompt}
 
@@ -579,7 +583,7 @@ export async function healTest(
       let findings: string[] = [];
       
       for (const f of files) {
-        if (!f.endsWith('.ts') && !f.endsWith('.js') && !f.endsWith('.html')) continue;
+        if (!f.match(/\.(html|jsx|tsx|vue|svelte|js|ts)$/)) continue;
         if (f === file) continue; // Skip current file
 
         try {
