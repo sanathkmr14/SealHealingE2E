@@ -166,6 +166,77 @@ AutoHeal uses an `autoheal.config.json` file in your project root to remember yo
 
 ---
 
+## 🤖 Continuous Integration & GitHub Actions
+
+AutoHeal is fully optimized for CI/CD. When run in GitHub Actions, it will:
+1. Run your Playwright tests in headless mode.
+2. If any selector is broken, it will automatically use AI to repair it and patch the test file.
+3. **Surgically commit and push the corrected test file back to your branch**, keeping your pipeline green and eliminating manual repair commits!
+
+### 📝 Example Workflow File
+Create a file at `.github/workflows/autoheal.yml` in your project:
+
+```yaml
+name: AutoHeal E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-heal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push healed test changes back
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required to retain git history for push
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+      
+    - name: Run AutoHeal E2E Tests
+      # If using a live local dev server, launch it in background first (e.g. npm run dev &)
+      run: npx autoheal test
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Pass your AI API key secret
+        
+    - name: Commit Healed Tests (if any)
+      if: always() # Run even if test execution failed
+      run: |
+        if [[ `git status --porcelain` ]]; then
+          echo "AutoHeal patched some broken tests! Committing changes..."
+          git config --global user.name 'AutoHeal Bot'
+          git config --global user.email 'autoheal[bot]@users.noreply.github.com'
+          git add tests/*.spec.ts
+          git commit -m "chore(test): auto-healed brittle selectors"
+          git push
+        else
+          echo "All tests passed cleanly. No healing was necessary!"
+        fi
+```
+
+### 🔑 Setting up Secrets
+To allow the workflow to connect to your AI model:
+1. Go to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions**.
+2. Click **New repository secret**.
+3. Name it (e.g., `GEMINI_API_KEY`) and paste your API key as the value.
+
+---
+
 ## 🤝 Roadmap
 
 **✅ Completed**
