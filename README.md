@@ -133,7 +133,7 @@ Want to actually *see* what the browser is doing? This runs your tests in a visi
 
 **Basic Usage:**
 ```bash
-autoheal view tests/checkout.spec.ts
+VISUAL= true autoheal view tests/checkout.spec.ts
 ```
 
 ### 🔬 7. Playwright UI Mode (`autoheal ui`)
