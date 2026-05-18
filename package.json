@@ -1,6 +1,6 @@
 {
   "name": "@sanathkumar/selfhealinge2e",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Writing and maintaining end-to-end (E2E) tests in tools like Cypress or Playwright is developers' least favorite task. When the UI changes, tests break, blocking deployment pipelines.",
   "main": "dist/src/runner.js",
   "bin": {
