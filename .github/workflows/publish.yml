@@ -1,0 +1,36 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  # Alternatively, you can uncomment the following to publish on every push to main that changes package.json
+  # push:
+  #   branches: [ main ]
+  #   paths: [ "package.json" ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # CRITICAL: Required for OIDC / Trusted Publishing
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Publish package via OIDC
+        # --provenance is used to generate a cryptographic signature for supply-chain security
+        run: npm publish --provenance --access public

@@ -57,6 +57,11 @@ autoheal init
 
 AutoHeal provides a powerful set of commands to make E2E testing effortless. You can pass any standard Playwright arguments to these commands (like specific file names or `--headed`).
 
+**To see a full list of all available commands and their descriptions at any time, run:**
+```bash
+autoheal --help
+```
+
 ### 🛠️ 1. Test & Auto-Heal (`autoheal test`)
 This is the core command. It runs your Playwright test suite. If any test fails due to a UI change (e.g., a missing button, changed text, or broken selector), AutoHeal catches the error, analyzes your application's DOM, and surgically rewrites the broken line of code in your test file so it passes.
 
@@ -234,6 +239,16 @@ To allow the workflow to connect to your AI model:
 1. Go to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions**.
 2. Click **New repository secret**.
 3. Name it (e.g., `GEMINI_API_KEY`) and paste your API key as the value.
+
+---
+
+## 🔐 Data Privacy & Security
+
+**Does AutoHeal steal my code?**  
+No. AutoHeal only transmits the specific HTML/DOM fragments of the failing test page and the broken Playwright test snippet to the AI provider you configure (Gemini, OpenAI, or Anthropic). It does not send your entire codebase or repository to the cloud.
+
+**Are patches applied automatically?**  
+Yes, by default. However, if you are working in a highly sensitive environment, we recommend using the **Interactive Mode** (`autoheal test -i`) to manually review and approve all AI-generated code patches before they are written to disk.
 
 ---
 

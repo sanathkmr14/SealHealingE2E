@@ -36,7 +36,7 @@ export function findSourceFileForElement(
     const files = getAllFiles(targetDir, excludePatterns);
 
     // 2. Sort files by similarity to the test file name (if possible)
-    const fileMatch = errorMsg.match(/([a-zA-Z0-9_\-\/\.\\]+\.[jt]sx?)/i);
+    const fileMatch = errorMsg.match(/([a-zA-Z0-9_\-\/\.\\ ]+\.[jt]sx?)/i);
     const testFileName = fileMatch ? path.basename(fileMatch[1]!).replace('.spec', '').split('.')[0]! : '';
     const sortedFiles = files.sort((a, b) => {
         const aBase = path.basename(a).toLowerCase();

@@ -664,7 +664,7 @@ function extractLocationFromStack(errorMsg: string): { file: string | null; line
       // Don't match internal Playwright code or node_modules
       if (line.includes('playwright/test') || line.includes('node_modules')) continue;
       
-      const match = line.match(/(?:at|file:\/\/)?[ \t]*([a-zA-Z0-9_\-\/\.\\]+\.[jt]sx?):(\d+):\d+/i);
+      const match = line.match(/(?:at|file:\/\/)?[ \t]*([a-zA-Z0-9_\-\/\.\\ ]+\.[jt]sx?):(\d+):\d+/i);
       if (match && match[1] && match[2]) {
         return { file: match[1], line: parseInt(match[2], 10) };
       }
@@ -672,7 +672,7 @@ function extractLocationFromStack(errorMsg: string): { file: string | null; line
   }
 
   // Fallback to old simple match
-  const fileMatch = errorMsg.match(/([a-zA-Z0-9_\-\/]+\.[jt]s):(\d+):\d+/);
+  const fileMatch = errorMsg.match(/([a-zA-Z0-9_\-\/\.\\ ]+\.[jt]s):(\d+):\d+/);
   if (fileMatch) {
     return { file: fileMatch[1] || null, line: parseInt(fileMatch[2]!, 10) };
   }
