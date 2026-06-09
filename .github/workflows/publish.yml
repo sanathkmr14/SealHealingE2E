@@ -3,10 +3,6 @@ name: Publish to npm
 on:
   release:
     types: [published]
-  # Publish on every push to main that changes package.json
-  push:
-    branches: [ main ]
-    paths: [ "package.json" ]
 
 jobs:
   publish:
