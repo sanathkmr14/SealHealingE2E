@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # CRITICAL: Required for OIDC / Trusted Publishing
 
     steps:
       - name: Checkout Code
@@ -31,6 +30,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Publish package via OIDC
-        # --provenance is used to generate a cryptographic signature for supply-chain security
-        run: npm publish --provenance --access public
+      - name: Publish package
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
