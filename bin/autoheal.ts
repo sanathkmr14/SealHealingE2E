@@ -159,11 +159,22 @@ function getFilesRecursive(dir: string, excludes: string[] = []): string[] {
   const files: string[] = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   
+  const defaultExcludes = [
+    'node_modules',
+    '.git',
+    'dist',
+    'playwright-report',
+    'test-results',
+    'autoheal-report.html',
+    'playwright/.cache'
+  ];
+  const allExcludes = [...defaultExcludes, ...excludes];
+
   for (const entry of entries) {
     const res = path.resolve(dir, entry.name);
     
     // Check if path matches any exclusion pattern
-    const isExcluded = excludes.some(pattern => {
+    const isExcluded = allExcludes.some(pattern => {
       const normalizedPath = res.replace(/\\/g, '/');
       const cleanPattern = pattern.replace(/\*\*\//g, '').replace(/^\/|\/$/g, '');
       return normalizedPath.includes(cleanPattern);

@@ -15,4 +15,4 @@ test('Product page interactions', async ({ page }) => {
   await expect(page.locator('#price-value')).toHaveText('$299.00');
 
   await expect(page.locator('#status-message')).toBeVisible();
-});;
+});;;

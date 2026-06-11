@@ -8,7 +8,7 @@ import path from 'path';
 export function findSourceFileForElement(
     errorMsg: string,
     targetDir: string,
-    excludePatterns: string[] = ['**/node_modules/**', '**/dist/**']
+    excludePatterns: string[] = ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/playwright-report/**', '**/test-results/**']
 ): { filePath: string; snippet: string } | undefined {
     // 1. Extract the locator from the Playwright error message
     // Matches locator('...'), getByRole('...', { name: '...' }), getByLabel('...'), etc.
@@ -49,7 +49,7 @@ export function findSourceFileForElement(
     // 3. Search for the query in each file
     for (const file of sortedFiles) {
         if (!file.match(/\.(html|jsx|tsx|vue|svelte|js|ts)$/)) continue;
-        
+
         try {
             const content = fs.readFileSync(file, 'utf-8');
             const lines = content.split('\n');
@@ -61,7 +61,7 @@ export function findSourceFileForElement(
                     return { filePath: file, snippet };
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     return undefined;
@@ -73,7 +73,7 @@ export function findSourceFileForElement(
 export function getAllFiles(dir: string, excludes: string[]): string[] {
     let results: string[] = [];
     if (!fs.existsSync(dir)) return results;
-    
+
     let list: string[] = [];
     try {
         list = fs.readdirSync(dir);
@@ -83,7 +83,7 @@ export function getAllFiles(dir: string, excludes: string[]): string[] {
 
     list.forEach(file => {
         const filePath = path.join(dir, file);
-        
+
         try {
             const stat = fs.statSync(filePath);
 

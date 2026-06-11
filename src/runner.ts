@@ -52,11 +52,13 @@ export async function runPlaywright(options: {
   }
 
   logger.info(`🚀 Starting AutoHeal Execution Loop...`);
-  const allPassed = await loop(options.interactive, options.playwrightArgs);
+  const { allPassed, patchedFiles } = await loop(options.interactive, options.playwrightArgs);
 
-  if (allPassed && healBranch && options.gitCommit !== false && !process.env.CI) {
+  if (patchedFiles.length > 0 && healBranch && options.gitCommit !== false && !process.env.CI) {
     try {
-      execSync('git add .', { stdio: 'ignore' });
+      for (const file of patchedFiles) {
+        execSync(`git add "${file}"`, { stdio: 'ignore' });
+      }
       execSync('git commit -m "AutoHeal: E2E tests fixed autonomously"', { stdio: 'ignore' });
       execSync(`git push origin ${healBranch}`, { stdio: 'ignore' });
       logger.success(`📤 Pushed healed branch → origin/${healBranch}`);
@@ -65,7 +67,7 @@ export async function runPlaywright(options: {
 }
 
 // ── Main execution loop ───────────────────────────────────────────────────────
-async function loop(interactive: boolean, args: string[]): Promise<boolean> {
+async function loop(interactive: boolean, args: string[]): Promise<{ allPassed: boolean; patchedFiles: string[] }> {
   const config = loadConfig();
   const projectRoot = getProjectRoot();
   let specFiles: string[] = [];
@@ -108,12 +110,13 @@ async function loop(interactive: boolean, args: string[]): Promise<boolean> {
 
   if (specFiles.length === 0) {
     logger.error('No spec files found anywhere in the accessible workspace.');
-    return false;
+    return { allPassed: false, patchedFiles: [] };
   }
 
   logger.step(`Discovered ${specFiles.length} test suite(s). Commencing execution...`);
 
   let allHealed = true;
+  const patchedFiles: string[] = [];
   for (let i = 0; i < specFiles.length; i++) {
     const file = specFiles[i]!;
     const shortName = path.basename(file);
@@ -132,8 +135,9 @@ async function loop(interactive: boolean, args: string[]): Promise<boolean> {
     if (exitCode !== 0) {
       const badge = chalk.bgHex('#7F1D1D').hex('#FECACA').bold(' NEEDS HEALING ');
       console.log(`\n  ${badge}  ${chalk.hex('#FCA5A5')(shortName)}\n`);
-      const healed = await healFile(file, args, interactive, jsonReport);
-      if (!healed) allHealed = false;
+      const { success, files } = await healFile(file, args, interactive, jsonReport);
+      if (files && files.length > 0) patchedFiles.push(...files);
+      if (!success) allHealed = false;
     } else {
       const badge = chalk.bgHex('#065F46').hex('#A7F3D0').bold(' PASSED ');
       console.log(`  ${badge}         ${chalk.hex('#34D399')(`${shortName} passed successfully.`)}\n`);
@@ -148,7 +152,7 @@ async function loop(interactive: boolean, args: string[]): Promise<boolean> {
     console.log(`\n  ${badge}  ${chalk.hex('#FCA5A5')('Some files could not be fully healed. See autoheal-report.html for details.')}\n`);
   }
 
-  return allHealed;
+  return { allPassed: allHealed, patchedFiles: Array.from(new Set(patchedFiles)) };
 }
 
 // ── Heal a single spec file (all failing tests in it) ────────────────────────
@@ -157,12 +161,13 @@ async function healFile(
   args: string[],
   interactive: boolean,
   initialReport?: any
-): Promise<boolean> {
+): Promise<{ success: boolean; files: string[] }> {
   const shortName = path.basename(file);
   const MAX_FILE_ROUNDS = 5; // max full-file re-run rounds
   let fileRound = 0;
   let jsonReport: any = initialReport;
   let exitCode: number = initialReport ? 1 : (initialReport === null ? 1 : 0); // treat initial report as failing
+  const healedFiles = new Set<string>();
 
   while (fileRound < MAX_FILE_ROUNDS) {
     fileRound++;
@@ -186,13 +191,13 @@ async function healFile(
 
     if (exitCode === 0) {
       logger.success(`${shortName} fully healed after ${fileRound} round(s).`);
-      return true;
+      return { success: true, files: Array.from(healedFiles) };
     }
 
     const allErrors = extractTestErrors(jsonReport);
     if (allErrors.length === 0) {
       logger.error(`${shortName}: Playwright failed but no errors found in report.`);
-      return false;
+      return { success: false, files: Array.from(healedFiles) };
     }
 
     console.log('');
@@ -243,11 +248,12 @@ async function healFile(
         errorFile = file;
       }
 
-      const healed = await healWithRetries(
+      const healResult = await healWithRetries(
         file, errorFile, errorLine, errorMsg, title, interactive, args, originalErrorFileContent
       );
-      if (healed) {
+      if (healResult.success) {
         anyHealedThisRound = true;
+        if (healResult.file) healedFiles.add(healResult.file);
         logger.success(`Test "${title}" healed`);
         // CRITICAL: Break after one success to prevent line-number shift bugs on subsequent tests in the same file.
         // The outer while(fileRound) loop will re-run the file to get fresh line numbers for remaining failures.
@@ -262,12 +268,12 @@ async function healFile(
       // Restore original to leave the file in a known state
       fs.writeFileSync(file, originalContent, 'utf8');
       updateWatcherCache(file, originalContent);
-      return false;
+      return { success: false, files: Array.from(healedFiles) };
     }
   }
 
   logger.error(`${shortName}: Exceeded ${MAX_FILE_ROUNDS} healing rounds.`);
-  return false;
+  return { success: false, files: Array.from(healedFiles) };
 }
 
 // ── Retry healing a single test with exponential backoff ─────────────────────
@@ -280,7 +286,7 @@ async function healWithRetries(
   interactive: boolean,
   args: string[],
   originalContent: string
-): Promise<boolean> {
+): Promise<{ success: boolean; file?: string }> {
   const MAX_RETRIES = 3;
   // previousFix holds the PATCHED content that failed verification,
   // so the AI knows what it tried before. Always diffed against originalContent.
@@ -350,7 +356,7 @@ async function healWithRetries(
     verifySpinner.stop();
 
     if (verifyExit === 0) {
-      return true;
+      return { success: true, file: targetFile };
     }
 
     logger.error(`Verification failed (attempt ${attempt}). Reverting...`);
@@ -370,7 +376,7 @@ async function healWithRetries(
   // All attempts exhausted — restore original
   fs.writeFileSync(errorFile, originalContent, 'utf8');
   updateWatcherCache(errorFile, originalContent);
-  return false;
+  return { success: false };
 }
 
 // ── Extract the test block surrounding errorLine from content ─────────────────

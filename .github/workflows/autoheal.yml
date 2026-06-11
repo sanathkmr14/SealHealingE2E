@@ -44,8 +44,8 @@ jobs:
           echo "AutoHeal patched some broken tests! Committing changes..."
           git config --global user.name 'AutoHeal Bot'
           git config --global user.email 'autoheal[bot]@users.noreply.github.com'
-          git add tests/*.spec.ts
-          git commit -m "chore(test): auto-healed brittle selectors via Gemini"
+          git add .
+          git commit -m "chore(test): auto-healed brittle selectors via AI"
           git push
         else
           echo "All tests passed cleanly. No healing was necessary!"
