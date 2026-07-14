@@ -263,4 +263,4 @@ Yes, by default. However, if you are working in a highly sensitive environment, 
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
+This project, **Self-Healing E2E**, is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
