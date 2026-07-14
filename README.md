@@ -261,6 +261,15 @@ Yes, by default. However, if you are working in a highly sensitive environment, 
 - [x] Integration with CI/CD (GitHub Actions)
 ---
 
+## 🤝 Contributing
+
+We welcome and deeply appreciate contributions from the open-source community! Whether you are fixing bugs, improving documentation, or proposing new features, your efforts help make Self-Healing E2E a better tool for everyone.
+
+To ensure a smooth and collaborative workflow, we recommend opening an issue to discuss significant changes or new feature ideas before submitting a pull request. This helps align your work with the project's roadmap and saves everyone valuable time.
+
+Let's connect and collaborate!
+
+---
 ## 📄 License
 
 This project, **Self-Healing E2E**, is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
